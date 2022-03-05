@@ -33,6 +33,58 @@ make_user_list_html <- function(file) {
 }
 
 
+#' Make HTML for DO Slim Page
+#'
+#' Makes the row and cell html code for the table on the DO Slims page. This
+#' function explicitly avoids including the html code for defining the table
+#' itself to provide for flexibility.
+#'
+#' @param DOrepo The file path to the
+#' @param out_dir The directory where `"{date}-DO_slims.html"` should be saved,
+#'     as a string.
+#'
+#' @export
+make_slim_html <- function(DOrepo, out_dir = "data/DO_release",
+                           force_load = FALSE) {
+    # get slim counts
+    dm <- access_doid_merged(DOrepo)
+    res <- dm$query(
+        system.file("sparql", "DO_subset.rq", package = "DO.utils")
+    )
+    slim <- dplyr::group_by(
+
+    # get slim user details
+    user_list <- googlesheets4::read_sheet(
+        ss = .DO_gs$users,
+        sheet = "DO_slims",
+        range = "A:E",
+        col_types = "lcccc"
+    )
+
+
+
+}
+
+
+access_DOrepo <- function(DOrepo) {
+    if ("pyDOID.repo.DOrepo" %in% class(DOrepo)) {
+        DOrepo
+    } else {
+        pyDOID$DOrepo(DOrepo)
+    }
+}
+
+access_doid_merged <- function(DOrepo, force = FALSE) {
+    repo <- access_DOrepo(DOrepo)
+
+    if (force || !"graph" %in% repo$doid_merged) {
+        repo$doid_merged$load()
+    } else {
+        repo$doid_merged
+    }
+
+    repo$doid_merged
+}
 
 # Statistics Plots --------------------------------------------------------
 
